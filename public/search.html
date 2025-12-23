@@ -1,1 +1,2108 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Search</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: #0f0f0f;
+      border-bottom: 1px solid #272727;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 1000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .menu-toggle:hover {
+      background: #272727;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: #ff0000;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Search Bar - Desktop */
+    .header-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      max-width: 600px;
+      padding: 0 16px;
+    }
+
+    .search-container {
+      display: flex;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .search-input-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 40px;
+      background: #121212;
+      border: 1px solid #303030;
+      border-radius: 20px 0 0 20px;
+      padding: 0 16px;
+      font-size: 16px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: #1c62b9;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
+    }
+
+    .search-input::placeholder {
+      color: #888;
+    }
+
+    .search-btn {
+      height: 40px;
+      width: 64px;
+      background: #222;
+      border: 1px solid #303030;
+      border-left: none;
+      border-radius: 0 20px 20px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .search-btn:hover {
+      background: #333;
+    }
+
+    .search-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    /* Header Right - Mobile Search Icon */
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+      min-width: 40px;
+    }
+
+    .mobile-search-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .mobile-search-btn:hover {
+      background: #272727;
+    }
+
+    .mobile-search-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+      display: block;
+    }
+
+    /* Mobile Search Bar */
+    .mobile-search-container {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      background: #0f0f0f;
+      padding: 12px 16px;
+      border-bottom: 1px solid #272727;
+      z-index: 999;
+      animation: slideDown 0.2s ease;
+    }
+
+    .mobile-search-container.open {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-search-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mobile-search-input {
+      flex: 1;
+      height: 40px;
+      background: #121212;
+      border: 1px solid #303030;
+      border-radius: 20px;
+      padding: 0 16px;
+      font-size: 16px;
+      color: #fff;
+      outline: none;
+    }
+
+    .mobile-search-input:focus {
+      border-color: #1c62b9;
+    }
+
+    .mobile-search-input::placeholder {
+      color: #888;
+    }
+
+    .mobile-search-submit {
+      height: 40px;
+      width: 40px;
+      background: #222;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .mobile-search-submit:hover {
+      background: #333;
+    }
+
+    .mobile-search-submit svg {
+      width: 20px;
+      height: 20px;
+      fill: #fff;
+    }
+
+    .mobile-search-close {
+      height: 40px;
+      width: 40px;
+      background: none;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 24px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .mobile-search-close:hover {
+      background: #272727;
+    }
+
+    /* Left Menu */
+    .left-menu {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 150px;
+      height: calc(100vh - 56px);
+      background: #0f0f0f;
+      border-right: 1px solid #272727;
+      padding: 12px 0;
+      overflow-y: auto;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
+
+    .menu-overlay {
+      display: none;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .menu-item:hover {
+      background: #272727;
+    }
+
+    .menu-item.active {
+      background: #272727;
+    }
+
+    .menu-item-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: #272727;
+      margin: 12px 0;
+    }
+
+    .menu-section-title {
+      padding: 8px 16px;
+      font-size: 11px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Main Content Wrapper */
+    .main-wrapper {
+      margin-left: 150px;
+      padding-top: 56px;
+      min-height: 100vh;
+    }
+
+    /* Filter Bar - Sticky */
+    .filter-bar {
+      position: sticky;
+      top: 56px;
+      z-index: 100;
+      background: #0f0f0f;
+      border-bottom: 1px solid #272727;
+      padding: 12px 24px;
+    }
+
+    .filter-bar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-chip {
+      background: #272727;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      color: #f1f1f1;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-chip:hover {
+      background: #3f3f3f;
+    }
+
+    .filter-chip.active {
+      background: #f1f1f1;
+      color: #0f0f0f;
+    }
+
+    .filter-chip-icon {
+      font-size: 16px;
+    }
+
+    /* Filter Button */
+    .filter-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #272727;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      color: #f1f1f1;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .filter-toggle-btn:hover {
+      background: #3f3f3f;
+    }
+
+    .filter-toggle-btn.active {
+      background: #3ea6ff;
+      color: #0f0f0f;
+    }
+
+    .filter-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Filter Panel */
+    .filter-panel {
+      display: none;
+      background: #181818;
+      border-bottom: 1px solid #272727;
+      padding: 20px 24px;
+      animation: slideDown 0.2s ease;
+    }
+
+    .filter-panel.open {
+      display: block;
+    }
+
+    .filter-panel-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 24px;
+    }
+
+    .filter-group {
+      min-width: 0;
+    }
+
+    .filter-group-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #272727;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      cursor: pointer;
+      transition: color 0.2s;
+      color: #f1f1f1;
+      font-size: 14px;
+    }
+
+    .filter-option:hover {
+      color: #fff;
+    }
+
+    .filter-option.active {
+      color: #3ea6ff;
+    }
+
+    .filter-option-radio {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #717171;
+      border-radius: 50%;
+      margin-right: 12px;
+      position: relative;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+
+    .filter-option.active .filter-option-radio {
+      border-color: #3ea6ff;
+    }
+
+    .filter-option.active .filter-option-radio::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: #3ea6ff;
+      border-radius: 50%;
+    }
+
+    .filter-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid #272727;
+      margin-top: 8px;
+    }
+
+    .filter-clear-btn {
+      background: none;
+      border: 1px solid #3ea6ff;
+      color: #3ea6ff;
+      padding: 8px 20px;
+      border-radius: 18px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-clear-btn:hover {
+      background: rgba(62, 166, 255, 0.1);
+    }
+
+    .filter-apply-btn {
+      background: #3ea6ff;
+      border: none;
+      color: #0f0f0f;
+      padding: 8px 20px;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-apply-btn:hover {
+      background: #65b8ff;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Results Info */
+    .results-info {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #272727;
+    }
+
+    .results-count {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .active-filter-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #272727;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #f1f1f1;
+    }
+
+    .active-filter-tag button {
+      background: none;
+      border: none;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .active-filter-tag button:hover {
+      color: #fff;
+    }
+
+    /* Results Container */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Channel Result Card */
+    .channel-result {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 16px;
+      background: #181818;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .channel-result:hover {
+      background: #272727;
+    }
+
+    .channel-avatar {
+      width: 136px;
+      height: 136px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #303030;
+      flex-shrink: 0;
+    }
+
+    .channel-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .channel-name {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .verified-badge {
+      width: 16px;
+      height: 16px;
+      background: #aaa;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .channel-handle {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .channel-stats {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 12px;
+    }
+
+    .channel-description {
+      font-size: 14px;
+      color: #aaa;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .subscribe-btn {
+      background: #fff;
+      color: #0f0f0f;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .subscribe-btn:hover {
+      background: #d9d9d9;
+    }
+
+    /* Video Result Card */
+    .video-result {
+      display: flex;
+      gap: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      padding: 12px;
+      margin: -12px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .video-result:hover {
+      background: #272727;
+    }
+
+    .video-thumbnail-wrapper {
+      position: relative;
+      flex-shrink: 0;
+      width: 360px;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #272727;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .video-info {
+      flex: 1;
+      min-width: 0;
+      padding: 4px 0;
+    }
+
+    .video-title {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      color: #f1f1f1;
+    }
+
+    .video-metadata {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .video-metadata span::after {
+      content: '•';
+      margin: 0 6px;
+    }
+
+    .video-metadata span:last-child::after {
+      content: '';
+    }
+
+    .video-channel-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .video-channel-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #303030;
+      object-fit: cover;
+    }
+
+    .video-channel-name {
+      font-size: 13px;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .video-channel-name:hover {
+      color: #fff;
+    }
+
+    .video-description {
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Playlist Result Card */
+    .playlist-result {
+      display: flex;
+      gap: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      padding: 12px;
+      margin: -12px;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .playlist-result:hover {
+      background: #272727;
+    }
+
+    .playlist-thumbnail-wrapper {
+      position: relative;
+      flex-shrink: 0;
+      width: 360px;
+    }
+
+    .playlist-thumbnail {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #272727;
+    }
+
+    .playlist-overlay {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 40%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .playlist-count {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .playlist-icon {
+      font-size: 24px;
+    }
+
+    /* Loading States */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #272727;
+      border-top-color: #ff0000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-more {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+      gap: 12px;
+    }
+
+    .loading-more .spinner {
+      width: 32px;
+      height: 32px;
+      border-width: 3px;
+    }
+
+    .loading-more p {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    /* Skeleton Loading */
+    .skeleton-container {
+      width: 100%;
+    }
+
+    .skeleton-video {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 12px;
+    }
+
+    .skeleton-thumbnail {
+      width: 360px;
+      aspect-ratio: 16/9;
+      background: #272727;
+      border-radius: 12px;
+      animation: pulse 1.5s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .skeleton-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 4px 0;
+    }
+
+    .skeleton-title {
+      height: 24px;
+      background: #272727;
+      border-radius: 4px;
+      width: 85%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-meta {
+      height: 16px;
+      background: #272727;
+      border-radius: 4px;
+      width: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-channel {
+      height: 24px;
+      background: #272727;
+      border-radius: 12px;
+      width: 150px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .skeleton-desc {
+      height: 16px;
+      background: #272727;
+      border-radius: 4px;
+      width: 75%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* No Results */
+    .no-results {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .no-results-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+    }
+
+    .no-results-text {
+      font-size: 20px;
+      color: #f1f1f1;
+      margin-bottom: 8px;
+    }
+
+    .no-results-suggestion {
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    /* End Message */
+    .end-message {
+      text-align: center;
+      padding: 40px;
+      color: #717171;
+      font-size: 14px;
+    }
+
+    /* Hidden class */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      .video-thumbnail-wrapper,
+      .playlist-thumbnail-wrapper {
+        width: 280px;
+      }
+
+      .skeleton-thumbnail {
+        width: 280px;
+      }
+
+      .channel-avatar {
+        width: 100px;
+        height: 100px;
+      }
+
+      .channel-name {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .left-menu {
+        transform: translateX(-100%);
+        width: 200px;
+      }
+
+      .left-menu.open {
+        transform: translateX(0);
+      }
+
+      .menu-overlay.open {
+        display: block;
+      }
+
+      .main-wrapper {
+        margin-left: 0;
+      }
+
+      /* Hide desktop search, show mobile search button */
+      .header-center {
+        display: none;
+      }
+
+      .mobile-search-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
+      .filter-bar {
+        padding: 12px 16px;
+      }
+
+      .filter-bar-content {
+        flex-wrap: nowrap;
+      }
+
+      .filter-chips {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .filter-panel {
+        padding: 16px;
+      }
+
+      .filter-panel-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .main-content {
+        padding: 16px;
+      }
+
+      .video-result,
+      .playlist-result {
+        flex-direction: column;
+        padding: 8px;
+        margin: -8px;
+      }
+
+      .video-thumbnail-wrapper,
+      .playlist-thumbnail-wrapper {
+        width: 100%;
+      }
+
+      .skeleton-video {
+        flex-direction: column;
+        padding: 8px;
+      }
+
+      .skeleton-thumbnail {
+        width: 100%;
+      }
+
+      .channel-result {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .channel-avatar {
+        width: 80px;
+        height: 80px;
+      }
+
+      .channel-name {
+        justify-content: center;
+      }
+
+      .video-title {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .filter-panel-content {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-actions {
+        flex-direction: column;
+      }
+
+      .filter-clear-btn,
+      .filter-apply-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+      <a href="/" class="logo">
+        <div class="logo-icon">▶</div>
+        <span>YouTube</span>
+      </a>
+    </div>
+
+    <!-- Desktop Search -->
+    <div class="header-center">
+      <form class="search-container" id="desktop-search-form">
+        <div class="search-input-wrapper">
+          <input type="text" class="search-input" id="desktop-search-input" placeholder="Search" autocomplete="off">
+        </div>
+        <button type="submit" class="search-btn" aria-label="Search">
+          <svg viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Mobile Search Button -->
+    <div class="header-right">
+      <button class="mobile-search-btn" id="mobile-search-btn" aria-label="Search">
+        <svg viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Search Bar -->
+  <div class="mobile-search-container" id="mobile-search-container">
+    <form class="mobile-search-wrapper" id="mobile-search-form">
+      <input type="text" class="mobile-search-input" id="mobile-search-input" placeholder="Search" autocomplete="off">
+      <button type="submit" class="mobile-search-submit" aria-label="Search">
+        <svg viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+        </svg>
+      </button>
+      <button type="button" class="mobile-search-close" id="mobile-search-close" aria-label="Close search">✕</button>
+    </form>
+  </div>
+
+  <!-- Left Menu -->
+  <nav class="left-menu" id="left-menu">
+    <a href="/" class="menu-item">
+      <span class="menu-item-icon">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="/shorts" class="menu-item">
+      <span class="menu-item-icon">⚡</span>
+      <span>Shorts</span>
+    </a>
+    <a href="/subscriptions" class="menu-item">
+      <span class="menu-item-icon">📺</span>
+      <span>Subscriptions</span>
+    </a>
+
+    <div class="menu-divider"></div>
+
+    <div class="menu-section-title">You</div>
+    <a href="/history" class="menu-item">
+      <span class="menu-item-icon">⏱️</span>
+      <span>History</span>
+    </a>
+    <a href="/playlists" class="menu-item">
+      <span class="menu-item-icon">📁</span>
+      <span>Playlists</span>
+    </a>
+    <a href="/watch-later" class="menu-item">
+      <span class="menu-item-icon">⏰</span>
+      <span>Watch later</span>
+    </a>
+    <a href="/liked" class="menu-item">
+      <span class="menu-item-icon">👍</span>
+      <span>Liked videos</span>
+    </a>
+
+    <div class="menu-divider"></div>
+
+    <div class="menu-section-title">Explore</div>
+    <a href="/trending" class="menu-item">
+      <span class="menu-item-icon">🔥</span>
+      <span>Trending</span>
+    </a>
+    <a href="/music" class="menu-item">
+      <span class="menu-item-icon">🎵</span>
+      <span>Music</span>
+    </a>
+    <a href="/gaming" class="menu-item">
+      <span class="menu-item-icon">🎮</span>
+      <span>Gaming</span>
+    </a>
+    <a href="/sports" class="menu-item">
+      <span class="menu-item-icon">⚽</span>
+      <span>Sports</span>
+    </a>
+  </nav>
+
+  <!-- Menu Overlay for Mobile -->
+  <div class="menu-overlay" id="menu-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-bar-content">
+        <div class="filter-chips" id="filter-chips">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="video">
+            <span class="filter-chip-icon">🎬</span>
+            Videos
+          </button>
+          <button class="filter-chip" data-filter="channel">
+            <span class="filter-chip-icon">👤</span>
+            Channels
+          </button>
+          <button class="filter-chip" data-filter="playlist">
+            <span class="filter-chip-icon">📋</span>
+            Playlists
+          </button>
+        </div>
+        <button class="filter-toggle-btn" id="filter-toggle-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 5h18v2H3V5zm4 7h10v2H7v-2zm3 7h4v2h-4v-2z"/>
+          </svg>
+          Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" id="filter-panel">
+      <div class="filter-panel-content">
+        <!-- Upload Date -->
+        <div class="filter-group">
+          <h3 class="filter-group-title">Upload Date</h3>
+          <div class="filter-option" data-filter-type="upload" data-value="">
+            <div class="filter-option-radio"></div>
+            <span>Any time</span>
+          </div>
+          <div class="filter-option" data-filter-type="upload" data-value="hour">
+            <div class="filter-option-radio"></div>
+            <span>Last hour</span>
+          </div>
+          <div class="filter-option" data-filter-type="upload" data-value="today">
+            <div class="filter-option-radio"></div>
+            <span>Today</span>
+          </div>
+          <div class="filter-option" data-filter-type="upload" data-value="week">
+            <div class="filter-option-radio"></div>
+            <span>This week</span>
+          </div>
+          <div class="filter-option" data-filter-type="upload" data-value="month">
+            <div class="filter-option-radio"></div>
+            <span>This month</span>
+          </div>
+          <div class="filter-option" data-filter-type="upload" data-value="year">
+            <div class="filter-option-radio"></div>
+            <span>This year</span>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div class="filter-group">
+          <h3 class="filter-group-title">Duration</h3>
+          <div class="filter-option" data-filter-type="duration" data-value="">
+            <div class="filter-option-radio"></div>
+            <span>Any duration</span>
+          </div>
+          <div class="filter-option" data-filter-type="duration" data-value="short">
+            <div class="filter-option-radio"></div>
+            <span>Under 4 minutes</span>
+          </div>
+          <div class="filter-option" data-filter-type="duration" data-value="medium">
+            <div class="filter-option-radio"></div>
+            <span>4-20 minutes</span>
+          </div>
+          <div class="filter-option" data-filter-type="duration" data-value="long">
+            <div class="filter-option-radio"></div>
+            <span>Over 20 minutes</span>
+          </div>
+        </div>
+
+        <!-- Sort By -->
+        <div class="filter-group">
+          <h3 class="filter-group-title">Sort By</h3>
+          <div class="filter-option active" data-filter-type="sort" data-value="relevance">
+            <div class="filter-option-radio"></div>
+            <span>Relevance</span>
+          </div>
+          <div class="filter-option" data-filter-type="sort" data-value="date">
+            <div class="filter-option-radio"></div>
+            <span>Upload date</span>
+          </div>
+          <div class="filter-option" data-filter-type="sort" data-value="views">
+            <div class="filter-option-radio"></div>
+            <span>View count</span>
+          </div>
+          <div class="filter-option" data-filter-type="sort" data-value="rating">
+            <div class="filter-option-radio"></div>
+            <span>Rating</span>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="filter-group">
+          <h3 class="filter-group-title">Features</h3>
+          <div class="filter-option" data-filter-type="features" data-value="">
+            <div class="filter-option-radio"></div>
+            <span>Any</span>
+          </div>
+          <div class="filter-option" data-filter-type="features" data-value="live">
+            <div class="filter-option-radio"></div>
+            <span>Live</span>
+          </div>
+          <div class="filter-option" data-filter-type="features" data-value="4k">
+            <div class="filter-option-radio"></div>
+            <span>4K</span>
+          </div>
+          <div class="filter-option" data-filter-type="features" data-value="hd">
+            <div class="filter-option-radio"></div>
+            <span>HD</span>
+          </div>
+          <div class="filter-option" data-filter-type="features" data-value="subtitles">
+            <div class="filter-option-radio"></div>
+            <span>Subtitles/CC</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+          <button class="filter-clear-btn" id="filter-clear-btn">Clear all</button>
+          <button class="filter-apply-btn" id="filter-apply-btn">Apply filters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Results Info -->
+      <div class="results-info" id="results-info">
+        <div class="results-count" id="results-count">Enter a search term to get started</div>
+        <div class="active-filters hidden" id="active-filters"></div>
+      </div>
+
+      <!-- Results Container -->
+      <div class="results-container" id="results-container">
+        <!-- Results will be inserted here -->
+      </div>
+
+      <!-- Loading indicator -->
+      <div class="loading-more hidden" id="loading-more">
+        <div class="spinner"></div>
+        <p>Loading more results...</p>
+      </div>
+
+      <!-- End Message -->
+      <div class="end-message hidden" id="end-message">
+        No more results to load
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results hidden" id="no-results">
+        <div class="no-results-icon">🔍</div>
+        <div class="no-results-text">No results found</div>
+        <div class="no-results-suggestion">Try different keywords or remove filters</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // API Configuration
+    const API_BASE = 'https://youtube-i-7qth.onrender.com/api';
+
+    // State
+    let currentQuery = '';
+    let currentFilter = 'all';
+    let currentSort = 'relevance';
+    let currentResults = [];
+    let isLoading = false;
+    let hasMore = true;
+    let currentStart = 1;
+    let currentEnd = 20;
+    const BATCH_SIZE = 20;
+    let menuOpen = false;
+    let mobileSearchOpen = false;
+    let filterPanelOpen = false;
+
+    // Filter state
+    let filters = {
+      upload: '',
+      duration: '',
+      sort: 'relevance',
+      features: ''
+    };
+
+    // DOM Elements
+    const menuToggle = document.getElementById('menu-toggle');
+    const leftMenu = document.getElementById('left-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const mobileSearchBtn = document.getElementById('mobile-search-btn');
+    const mobileSearchContainer = document.getElementById('mobile-search-container');
+    const mobileSearchClose = document.getElementById('mobile-search-close');
+    const desktopSearchForm = document.getElementById('desktop-search-form');
+    const desktopSearchInput = document.getElementById('desktop-search-input');
+    const mobileSearchForm = document.getElementById('mobile-search-form');
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    const filterToggleBtn = document.getElementById('filter-toggle-btn');
+    const filterPanel = document.getElementById('filter-panel');
+
+    // Menu toggle functionality
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      leftMenu.classList.toggle('open', menuOpen);
+      menuOverlay.classList.toggle('open', menuOpen);
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+    menuOverlay.addEventListener('click', toggleMenu);
+
+    // Mobile search functionality
+    function openMobileSearch() {
+      mobileSearchOpen = true;
+      mobileSearchContainer.classList.add('open');
+      mobileSearchInput.focus();
+    }
+
+    function closeMobileSearch() {
+      mobileSearchOpen = false;
+      mobileSearchContainer.classList.remove('open');
+    }
+
+    mobileSearchBtn.addEventListener('click', openMobileSearch);
+    mobileSearchClose.addEventListener('click', closeMobileSearch);
+
+    // Filter panel toggle
+    function toggleFilterPanel() {
+      filterPanelOpen = !filterPanelOpen;
+      filterPanel.classList.toggle('open', filterPanelOpen);
+      filterToggleBtn.classList.toggle('active', filterPanelOpen);
+    }
+
+    filterToggleBtn.addEventListener('click', toggleFilterPanel);
+
+    // Filter options click handler
+    document.querySelectorAll('.filter-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const filterType = option.dataset.filterType;
+        const value = option.dataset.value;
+
+        // Update active state within group
+        document.querySelectorAll(`.filter-option[data-filter-type="${filterType}"]`).forEach(opt => {
+          opt.classList.remove('active');
+        });
+        option.classList.add('active');
+
+        filters[filterType] = value;
+      });
+    });
+
+    // Clear filters
+    document.getElementById('filter-clear-btn').addEventListener('click', () => {
+      filters = {
+        upload: '',
+        duration: '',
+        sort: 'relevance',
+        features: ''
+      };
+
+      document.querySelectorAll('.filter-option').forEach(opt => {
+        opt.classList.remove('active');
+        if (opt.dataset.value === '' || (opt.dataset.filterType === 'sort' && opt.dataset.value === 'relevance')) {
+          opt.classList.add('active');
+        }
+      });
+
+      updateActiveFilterTags();
+    });
+
+    // Apply filters
+    document.getElementById('filter-apply-btn').addEventListener('click', () => {
+      currentSort = filters.sort;
+      updateActiveFilterTags();
+      toggleFilterPanel();
+
+      if (currentQuery) {
+        performSearch(currentQuery);
+      }
+    });
+
+    // Update active filter tags display
+    function updateActiveFilterTags() {
+      const container = document.getElementById('active-filters');
+      container.innerHTML = '';
+
+      const filterLabels = {
+        upload: { hour: 'Last hour', today: 'Today', week: 'This week', month: 'This month', year: 'This year' },
+        duration: { short: 'Under 4 min', medium: '4-20 min', long: 'Over 20 min' },
+        sort: { date: 'Upload date', views: 'View count', rating: 'Rating' },
+        features: { live: 'Live', '4k': '4K', hd: 'HD', subtitles: 'Subtitles' }
+      };
+
+      let hasActiveFilters = false;
+
+      Object.entries(filters).forEach(([type, value]) => {
+        if (value && !(type === 'sort' && value === 'relevance')) {
+          hasActiveFilters = true;
+          const label = filterLabels[type]?.[value] || value;
+          const tag = document.createElement('div');
+          tag.className = 'active-filter-tag';
+          tag.innerHTML = `
+            <span>${label}</span>
+            <button data-type="${type}" aria-label="Remove filter">✕</button>
+          `;
+          tag.querySelector('button').addEventListener('click', () => {
+            filters[type] = type === 'sort' ? 'relevance' : '';
+            document.querySelectorAll(`.filter-option[data-filter-type="${type}"]`).forEach(opt => {
+              opt.classList.remove('active');
+              if (opt.dataset.value === filters[type]) {
+                opt.classList.add('active');
+              }
+            });
+            updateActiveFilterTags();
+            if (currentQuery) performSearch(currentQuery);
+          });
+          container.appendChild(tag);
+        }
+      });
+
+      container.classList.toggle('hidden', !hasActiveFilters);
+    }
+
+    // Search functionality
+    function performSearchAction(query) {
+      if (query && query.trim()) {
+        currentQuery = query.trim();
+        updateURL(currentQuery);
+        document.title = `${currentQuery} - YouTube Search`;
+        desktopSearchInput.value = currentQuery;
+        mobileSearchInput.value = currentQuery;
+        performSearch(currentQuery);
+      }
+    }
+
+    desktopSearchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      performSearchAction(desktopSearchInput.value);
+    });
+
+    mobileSearchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      performSearchAction(mobileSearchInput.value);
+      closeMobileSearch();
+    });
+
+    // Close menu on window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        if (menuOpen) {
+          menuOpen = false;
+          leftMenu.classList.remove('open');
+          menuOverlay.classList.remove('open');
+        }
+        if (mobileSearchOpen) {
+          closeMobileSearch();
+        }
+      }
+    });
+
+    // Filter chips
+    document.getElementById('filter-chips').addEventListener('click', (e) => {
+      const chip = e.target.closest('.filter-chip');
+      if (!chip) return;
+
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      currentFilter = chip.dataset.filter;
+
+      if (currentQuery) {
+        performSearch(currentQuery);
+      }
+    });
+
+    // Get query from URL
+    function getQueryFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('q') || '';
+    }
+
+    // Update URL
+    function updateURL(query) {
+      const url = new URL(window.location);
+      if (query) {
+        url.searchParams.set('q', query);
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.pushState({}, '', url);
+    }
+
+    // Fix thumbnail URLs
+    function fixThumbnailUrl(url) {
+      if (!url) return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9"><rect fill="%23272727" width="16" height="9"/></svg>';
+      if (url.startsWith('//')) return 'https:' + url;
+      return url;
+    }
+
+    // Format view count
+    function formatViews(views) {
+      if (!views) return '';
+      const match = views.match(/[\d,]+/);
+      if (!match) return views;
+
+      const num = parseInt(match[0].replace(/,/g, ''));
+      if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B views';
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M views';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K views';
+      return num + ' views';
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Get channel URL
+    function getChannelUrl(channel) {
+      let handle = null;
+
+      if (channel.url && channel.url.includes('@')) {
+        const match = channel.url.match(/@[\w-]+/);
+        if (match) handle = match[0];
+      }
+
+      if (!handle && channel.subscriberCount && channel.subscriberCount.startsWith('@')) {
+        handle = channel.subscriberCount;
+      }
+
+      if (!handle && channel.handle) {
+        handle = channel.handle.startsWith('@') ? channel.handle : '@' + channel.handle;
+      }
+
+      if (handle) return '/' + handle;
+      if (channel.id && channel.id !== 'N/A') return '/channel/' + channel.id;
+      if (channel.name) return '/@' + channel.name.replace(/\s+/g, '');
+
+      return '#';
+    }
+
+    // Get channel handle
+    function getChannelHandle(channel) {
+      if (channel.subscriberCount && channel.subscriberCount.startsWith('@')) {
+        return channel.subscriberCount;
+      }
+      if (channel.handle) {
+        return channel.handle.startsWith('@') ? channel.handle : '@' + channel.handle;
+      }
+      if (channel.url && channel.url.includes('@')) {
+        const match = channel.url.match(/@[\w-]+/);
+        if (match) return match[0];
+      }
+      return null;
+    }
+
+    // Get subscriber count
+    function getSubscriberCount(channel) {
+      if (channel.videoCount && channel.videoCount.includes('subscriber')) {
+        return channel.videoCount;
+      }
+      if (channel.subscriberCount && !channel.subscriberCount.startsWith('@')) {
+        return channel.subscriberCount;
+      }
+      return null;
+    }
+
+    // Render channel result
+    function renderChannelResult(channel) {
+      const channelEl = document.createElement('a');
+      channelEl.className = 'channel-result';
+      channelEl.href = getChannelUrl(channel);
+
+      const handleText = getChannelHandle(channel);
+      const subscriberText = getSubscriberCount(channel);
+
+      channelEl.innerHTML = `
+        <img class="channel-avatar" src="${fixThumbnailUrl(channel.thumbnail)}" alt="${escapeHtml(channel.name)}" loading="lazy">
+        <div class="channel-info">
+          <div class="channel-name">
+            ${escapeHtml(channel.name)}
+            <span class="verified-badge">✓</span>
+          </div>
+          ${handleText ? `<div class="channel-handle">${escapeHtml(handleText)}</div>` : ''}
+          ${subscriberText ? `<div class="channel-stats">${subscriberText}</div>` : ''}
+          ${channel.description ? `<div class="channel-description">${escapeHtml(channel.description)}</div>` : ''}
+          <button class="subscribe-btn" onclick="event.preventDefault(); event.stopPropagation();">Subscribe</button>
+        </div>
+      `;
+
+      return channelEl;
+    }
+
+    // Render video result
+    function renderVideoResult(video) {
+      const videoEl = document.createElement('a');
+      videoEl.className = 'video-result';
+      videoEl.href = `/watch?v=${video.id}`;
+
+      const channelUrl = video.channel ? getChannelUrl(video.channel) : '#';
+
+      videoEl.innerHTML = `
+        <div class="video-thumbnail-wrapper">
+          <img class="video-thumbnail" src="${fixThumbnailUrl(video.thumbnail)}" alt="${escapeHtml(video.title)}" loading="lazy">
+          ${video.duration ? `<span class="video-duration">${video.duration}</span>` : ''}
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">${escapeHtml(video.title)}</h3>
+          <div class="video-metadata">
+            ${video.views ? `<span>${formatViews(video.views)}</span>` : ''}
+            ${video.published ? `<span>${video.published}</span>` : ''}
+          </div>
+          ${video.channel ? `
+            <div class="video-channel-info">
+              ${video.channel.thumbnail ? `<img class="video-channel-avatar" src="${fixThumbnailUrl(video.channel.thumbnail)}" alt="${escapeHtml(video.channel.name)}" loading="lazy">` : ''}
+              <a class="video-channel-name" href="${channelUrl}" onclick="event.stopPropagation();">
+                ${escapeHtml(video.channel.name)}
+              </a>
+            </div>
+          ` : ''}
+          ${video.description ? `<div class="video-description">${escapeHtml(video.description)}</div>` : ''}
+        </div>
+      `;
+
+      return videoEl;
+    }
+
+    // Render playlist result
+    function renderPlaylistResult(playlist) {
+      const playlistEl = document.createElement('a');
+      playlistEl.className = 'playlist-result';
+      playlistEl.href = `/playlist?list=${playlist.id}`;
+
+      const channelUrl = playlist.channel ? getChannelUrl(playlist.channel) : '#';
+
+      playlistEl.innerHTML = `
+        <div class="playlist-thumbnail-wrapper">
+          <img class="playlist-thumbnail" src="${fixThumbnailUrl(playlist.thumbnail)}" alt="${escapeHtml(playlist.title)}" loading="lazy">
+          <div class="playlist-overlay">
+            <div class="playlist-count">${playlist.videoCount || '0'}</div>
+            <div class="playlist-icon">▶</div>
+          </div>
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">${escapeHtml(playlist.title)}</h3>
+          ${playlist.channel ? `
+            <div class="video-channel-info">
+              <a class="video-channel-name" href="${channelUrl}" onclick="event.stopPropagation();">
+                ${escapeHtml(playlist.channel.name)}
+              </a>
+            </div>
+          ` : ''}
+          <div class="video-metadata">
+            <span>${playlist.videoCount || '0'} videos</span>
+            ${playlist.updated ? `<span>Updated ${playlist.updated}</span>` : ''}
+          </div>
+          ${playlist.description ? `<div class="video-description">${escapeHtml(playlist.description)}</div>` : ''}
+        </div>
+      `;
+
+      return playlistEl;
+    }
+
+    // Render skeleton loading
+    function renderSkeleton() {
+      const skeleton = document.createElement('div');
+      skeleton.className = 'skeleton-container';
+      skeleton.innerHTML = `
+        <div class="skeleton-video">
+          <div class="skeleton-thumbnail"></div>
+          <div class="skeleton-info">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-meta"></div>
+            <div class="skeleton-channel"></div>
+            <div class="skeleton-desc"></div>
+          </div>
+        </div>
+      `.repeat(4);
+      return skeleton;
+    }
+
+    // Display results
+    function displayResults(results, append = false) {
+      const container = document.getElementById('results-container');
+      const noResults = document.getElementById('no-results');
+      const endMessage = document.getElementById('end-message');
+
+      if (!append) {
+        container.innerHTML = '';
+      }
+
+      const skeletons = container.querySelectorAll('.skeleton-container');
+      skeletons.forEach(s => s.remove());
+
+      if (results.length === 0 && !append && currentResults.length === 0) {
+        noResults.classList.remove('hidden');
+        endMessage.classList.add('hidden');
+        return;
+      }
+
+      noResults.classList.add('hidden');
+
+      results.forEach(result => {
+        let element;
+
+        switch (result.type) {
+          case 'channel':
+            element = renderChannelResult(result);
+            break;
+          case 'video':
+            element = renderVideoResult(result);
+            break;
+          case 'playlist':
+            element = renderPlaylistResult(result);
+            break;
+          default:
+            if (result.id && result.title) {
+              element = renderVideoResult(result);
+            }
+        }
+
+        if (element) {
+          container.appendChild(element);
+        }
+      });
+
+      if (!hasMore) {
+        endMessage.classList.remove('hidden');
+      } else {
+        endMessage.classList.add('hidden');
+      }
+    }
+
+    // Load more results
+    async function loadMoreResults() {
+      if (!currentQuery || isLoading || !hasMore) return;
+
+      isLoading = true;
+      document.getElementById('loading-more').classList.remove('hidden');
+
+      try {
+        let apiUrl = `${API_BASE}/search?q=${encodeURIComponent(currentQuery)}&start=${currentStart}&end=${currentEnd}`;
+
+        if (currentFilter !== 'all') {
+          apiUrl += `&type=${currentFilter}`;
+        }
+
+        if (currentSort !== 'relevance') {
+          apiUrl += `&sort=${currentSort}`;
+        }
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.success && data.results) {
+          let results = data.results;
+
+          if (currentFilter !== 'all') {
+            results = results.filter(r => r.type === currentFilter);
+          }
+
+          currentResults = [...currentResults, ...results];
+          displayResults(results, true);
+
+          hasMore = data.hasMore !== undefined ? data.hasMore : results.length >= BATCH_SIZE;
+
+          currentStart = currentEnd + 1;
+          currentEnd = currentStart + BATCH_SIZE - 1;
+        } else {
+          throw new Error(data.error || 'Search failed');
+        }
+      } catch (error) {
+        console.error('Load more error:', error);
+        hasMore = false;
+      } finally {
+        isLoading = false;
+        document.getElementById('loading-more').classList.add('hidden');
+      }
+    }
+
+    // Perform search
+    async function performSearch(query) {
+      if (!query || isLoading) return;
+
+      currentStart = 1;
+      currentEnd = BATCH_SIZE;
+      currentResults = [];
+      hasMore = true;
+      document.getElementById('end-message').classList.add('hidden');
+
+      isLoading = true;
+
+      const container = document.getElementById('results-container');
+      const resultsCount = document.getElementById('results-count');
+
+      container.innerHTML = '';
+      container.appendChild(renderSkeleton());
+
+      try {
+        let apiUrl = `${API_BASE}/search?q=${encodeURIComponent(query)}&start=${currentStart}&end=${currentEnd}`;
+
+        if (currentFilter !== 'all') {
+          apiUrl += `&type=${currentFilter}`;
+        }
+
+        if (currentSort !== 'relevance') {
+          apiUrl += `&sort=${currentSort}`;
+        }
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.success && data.results) {
+          let results = data.results;
+
+          if (currentFilter !== 'all') {
+            results = results.filter(r => r.type === currentFilter);
+          }
+
+          currentResults = results;
+
+          const totalText = data.totalCached ? 
+            `About ${data.totalCached.toLocaleString()} results` : 
+            `${results.length} results`;
+          resultsCount.textContent = totalText;
+
+          displayResults(results, false);
+
+          hasMore = data.hasMore !== undefined ? data.hasMore : results.length >= BATCH_SIZE;
+
+          currentStart = currentEnd + 1;
+          currentEnd = currentStart + BATCH_SIZE - 1;
+        } else {
+          throw new Error(data.error || 'Search failed');
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+
+        const skeletons = container.querySelectorAll('.skeleton-container');
+        skeletons.forEach(s => s.remove());
+
+        container.innerHTML = `
+          <div class="no-results">
+            <div class="no-results-icon">⚠️</div>
+            <div class="no-results-text">Something went wrong</div>
+            <div class="no-results-suggestion">${escapeHtml(error.message)}</div>
+          </div>
+        `;
+        hasMore = false;
+      } finally {
+        isLoading = false;
+      }
+    }
+
+    // Scroll handler
+    let lastScrollCheck = 0;
+    function checkScroll() {
+      if (!currentQuery || isLoading || !hasMore) return;
+
+      const now = Date.now();
+      if (now - lastScrollCheck < 200) return;
+      lastScrollCheck = now;
+
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      const distanceFromBottom = documentHeight - (scrollTop + windowHeight);
+
+      if (distanceFromBottom < 800) {
+        loadMoreResults();
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      const query = getQueryFromURL();
+      if (query) {
+        currentQuery = query;
+        desktopSearchInput.value = query;
+        mobileSearchInput.value = query;
+        document.title = `${query} - YouTube Search`;
+        performSearch(query);
+      }
+
+      window.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+
+      setInterval(() => {
+        if (currentQuery && !isLoading && hasMore) {
+          checkScroll();
+        }
+      }, 1000);
+    });
+
+    // Browser navigation
+    window.addEventListener('popstate', () => {
+      const query = getQueryFromURL();
+      if (query !== currentQuery) {
+        currentQuery = query;
+        desktopSearchInput.value = query;
+        mobileSearchInput.value = query;
+        if (query) {
+          performSearch(query);
+        } else {
+          document.getElementById('results-container').innerHTML = '';
+          document.getElementById('results-count').textContent = 'Enter a search term to get started';
+        }
+      }
+    });
+
+    // Close mobile search on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (mobileSearchOpen) closeMobileSearch();
+        if (filterPanelOpen) toggleFilterPanel();
+      }
+    });
+  </script>
+</body>
+</html>
